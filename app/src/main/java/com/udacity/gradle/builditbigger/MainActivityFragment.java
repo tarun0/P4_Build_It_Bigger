@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.JavaJoke;
 import com.example.androidlib.MainJokeActivity;
@@ -47,11 +45,9 @@ public class MainActivityFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //tellJoke();
-                Intent intent = new Intent(getActivity().getApplicationContext(), MainJokeActivity.class);
-                intent.putExtra("joke", joke.getJoke());
-                new EndpointsAsyncTask().execute(new Pair<Context, String>(getActivity()
-                        .getApplicationContext(), "Manfred"));
+                /*Intent intent = new Intent(getActivity().getApplicationContext(), MainJokeActivity.class);
+                intent.putExtra("joke", joke.getJoke());*/
+                new EndpointsAsyncTask().execute(getActivity().getApplicationContext());
                // startActivity(intent);
             }
         });
@@ -68,19 +64,19 @@ public class MainActivityFragment extends Fragment {
         return root;
     }
 
-    class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
-        private  MyApi myApiService = null;
+    public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
+        private MyApi myApiService = null;
         private Context context;
 
         @Override
-        protected String doInBackground(Pair<Context, String>... params) {
+        protected String doInBackground(Context... params) {
             if (myApiService == null) {  // Only do this once
                 MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                         new AndroidJsonFactory(), null)
                         // options for running against local devappserver
                         // - 10.0.2.2 is localhost's IP address in Android emulator
                         // - turn off compression when running against local devappserver
-                        .setRootUrl("http://10.0.2.2:8080/_ah/api/")
+                        .setRootUrl("https://nanodegree-p4.appspot.com/_ah/api/")
                         .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                             @Override
                             public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -92,11 +88,10 @@ public class MainActivityFragment extends Fragment {
                 myApiService = builder.build();
             }
 
-            context = params[0].first;
-            String name = params[0].second;
+            context = params[0];
 
             try {
-                return myApiService.sayHi(name).execute().getData();
+                return myApiService.sayHi().execute().getData();
             } catch (IOException e) {
                 return e.getMessage();
             }
@@ -105,7 +100,10 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+           // MainJokeActivity aJoke = new MainJokeActivity();
+            Intent intent = new Intent(context, MainJokeActivity.class);
+            intent.putExtra("joke", s);
+            startActivity(intent);
         }
     }
 }
