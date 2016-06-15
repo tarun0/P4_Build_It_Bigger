@@ -3,6 +3,7 @@ package com.udacity.gradle.builditbigger;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.androidlib.MainJokeActivity;
 import com.example.backend.myApi.MyApi;
@@ -52,6 +53,7 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Log.e("POSTEXECUTE", s);
             // MainJokeActivity aJoke = new MainJokeActivity();
             Intent intent = new Intent(context, MainJokeActivity.class);
             intent.putExtra("joke", s);
